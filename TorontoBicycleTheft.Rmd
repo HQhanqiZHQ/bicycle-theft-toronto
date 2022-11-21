@@ -9,27 +9,21 @@ fontsize: 12pt
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(echo = TRUE)
-library(reticulate)
-knitr::opts_chunk$set(python = reticulate::eng_python)
-
 #install packages
 library(readr)
 library(ggplot2)
 library(dplyr)
 library(ggrepel)
 library(forcats)
-install.packages("ggpubr")
 library(ggpubr)
 #import dataset
 bicycle_thefts_2014_2019 <- read_csv("bicycle-thefts-2014-2019.csv")
 ```
 
 ### Introduction
-These years, toronto bicycle theft has aroused a lot of attention in recent years due to its negative influence on the sustainable transportation mode. The present research brings attention to this issue by analyzing the multifacted problem of bicycle theft in Toronto, Ontario, Canada. A survey data set with over 20,000 records was released by the Toronto Police Service Public Safety Data Portal for this purpose. This report tries to understand bicycle theft through answering the questions "who are theft-risky neighborhoods", "when do theft most frequently happen", "how does the chance of being stolen differ in premise types, and "which are the features of theives' target bicycles". Insights drew from this study can help the government, policy makers better understand the bicycle theft development in Toronto and give the residents, general public suggestions on reducing their bicycles' risks of being stolen.
+These years, Toronto bicycle theft has aroused a lot of attention due to its negative influence on the sustainable transportation mode (Van Lierop, D., Grimsrud, M., & El-Geneidy, A., 2015). The present research brings attention to this issue by analyzing the multifaceted problem of bicycle theft in Toronto, Ontario, Canada. A survey data set with over 20,000 records was released by the Toronto Police Service Public Safety Data Portal for this purpose. This report tries to understand bicycle theft through answering the questions "who are the theft-risky neighborhoods", "when do the thefts most frequently happen", "what is the premise type where the bikes are most frequently stolen", and "which are the features of thieves' target bicycles". Insights drawn from this study can help the government, policy makers better understand the bicycle theft pattern in Toronto and give the residents, general public suggestions on reducing their bicycles' risks of being stolen.
 
-### Top 5 Toronto Neighborhoods Who Have Greatest Amount of Bike Thefts
+### Did every Toronto neighborhood have similar amount of bike theft?
 ```{r, width=3, height=5, include=FALSE}
 #Explore firstly if some neighborhoods have severe number of bike thefts or not.
 bicycle_thefts_2014_2019%>%group_by(Hood_ID, Occurrence_Year) %>% ggplot(aes(x=Occurrence_Year)) +
@@ -39,7 +33,7 @@ bicycle_thefts_2014_2019%>%group_by(Hood_ID, Occurrence_Year) %>% ggplot(aes(x=O
 #Obviously hood 75, 76, 77, 82, 95 have distinct greater number of occurrence, then they are our target to analyze.
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE}
 #We create the first visualization that emphasizes compare to all other neighborhoods, the five selected hoods indeed perform significantly worse than others from 2014-2019.
 #if we plot all neighborhoods on the graph, there will be lower separability and disciminability 
 bicycle_thefts_2014_2019 $ Target_or_Not = ifelse(!bicycle_thefts_2014_2019$Hood_ID %in% c(75, 76, 77, 82, 95), 0, bicycle_thefts_2014_2019$Hood_ID)
@@ -55,7 +49,8 @@ vis1$label <- ifelse(vis1$label == 4, "Waterfront Communities-The Island", vis1$
 vis1$label <- ifelse(vis1$label == 5, "Niagara", vis1$label)
 vis1$label <- ifelse(vis1$label == 6, "Annex", vis1$label)
 #plot the graph
-vis1%>%ggplot(aes(x=Occurrence_Year, y=n, group=Target_or_Not, col=Target_or_Not)) + geom_line() + scale_color_manual(values=c("gray75",rep("orange",5)))+geom_label_repel(aes(label = label),nudge_x = 1, na.rm=TRUE)+labs(x="Occurrence Year", y="Number of Bike Thefts")+theme_minimal()+theme(legend.position = "none")
+vis1%>%ggplot(aes(x=Occurrence_Year, y=n, group=Target_or_Not, col=Target_or_Not)) + geom_line(size=1.1) + scale_color_manual(values=c("gray75",rep("orange",5)))+ylim(-20,500)+geom_label_repel(aes(label = label),nudge_x = 1, na.rm=TRUE)+labs(x="Occurrence Year", y="Number of Bike Thefts")+theme_minimal()+theme(legend.position = "none")+
+  theme(plot.title=element_text(hjust=0.5, size=12, face="bold"))+ggtitle("Top 5 Neighbourhoods Bicycle Theft From 2014-2019")
 ```
 
 ```{r, include=FALSE}
@@ -71,16 +66,16 @@ nrow(bicycle2%>%filter(Occurrence_Year==2018))/nrow(bicycle_thefts_2014_2019%>%f
 nrow(bicycle2%>%filter(Occurrence_Year==2019))/nrow(bicycle_thefts_2014_2019%>%filter(Occurrence_Year==2019))
 #We could see a trend of increased percentage of bike thefts in these hoods, which also verifies our goal to investigate these areas to have more meaningful output and analysis.
 ```
-One interesting insight we want to see at first is that if certain neighbourhoods have significantly more occurrences throughout the four years, and thus we could make other analysis based on that. We first generated distribution of bike thefts amount by year by each neighbourhood, and there are five neighborhoods stood out.
+One interesting insight we want to see at first is that if certain neighborhoods have significantly more occurrences throughout the four years, and thus we could make other analysis based on that. We first generated distribution of bike theft quantities by year for each neighborhood, and five neighborhoods stood out.
 
-Then visualization 1 was created, which highlights the five communities and compares to mean of occurrence of bike thefts in other neighbourhoods as well. Here we didn’t plot all the other neighborhoods one by one since we want to make the graph maintain high discriminability and separability. From the visualization, we could observe the five neighborhoods have constantly large amount of bike thefts from 2014-2019. And based on some simple calculations, we could see that the top 5 neighborhoods contributed 29.5%, 31%, 34%, 35.8%, 36.5% of overall occurrences in each year from 2015 to 2019, which emphasizes again the following analysis have more meaningful and helpful conclusions and suggestions for cyclists living in these five regions.
+Then visualization 1 was created, which highlights the five communities and compares them to the mean of the occurrence of bike thefts in other neighborhoods as well. Here, we didn’t plot all the other neighborhoods one by one since we want to make the graph maintain high discriminability and separability. We could see from the visualization that the five neighborhoods had a consistently high number of bike thefts from 2014 to 2019. And based on some simple calculations, we could see that the top 5 neighborhoods contributed 29.5%, 31%, 34%, 35.8%, and 36.5% of overall occurrences in each year from 2015 to 2019, which emphasizes again that the following analysis has more meaningful and helpful conclusions and suggestions for cyclists living in these five regions.
 
-Due to lack of bike thefts data from 2020-2022, the top five neighborhoods may change over time, and the analysis somewhat lacks timeliness. It can be improved by collecting most recent data or predicting data based on existing ones.
+Due to the lack of bike theft data from 2020 to 2022, the top five neighborhoods may change over time, and the analysis somewhat lacks timeliness. It can be improved by collecting and updating some recent data or predicting data based on existing ones.
 
-After pining down to these significantly bike thefts occurred regions, we want to figure out if bike thefts occurred more in certain months.
+After pining down to these significantly bike thefts occurred regions, we want to figure out whether bike thefts occurred more frequently in certain months.
 
 
-### Month-by-month Trend across Top 5 Neighborhoods
+### Did bike thefts occur similarly each month?
 ```{r, include=FALSE}
 bike_theft = bicycle_thefts_2014_2019
 #bar chart of number of cases across neighborhoods by reported month
@@ -113,7 +108,7 @@ g1<-reported_month_top <- bicycle2 %>%
   group_by(month_name) %>% 
   summarise(count = n()) %>%
   ggplot(aes(x=factor(month_name, levels = c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")), y = count)) + 
-  geom_bar(stat='identity', fill = "#a8d6b9") +
+  geom_bar(stat='identity', fill = c("#ffcccc","#ff6666","#ffcccc","#ffcccc","#ffcccc","#ff6666","#ff6666","#ffcccc","#ffcccc","#ffcccc","#ffcccc","#ffcccc")) +
   geom_text(aes(label=count), position=position_dodge(width=0.5), vjust= -0.5, size = 3) +
   ylim(0,1250) +
   xlab("Month") +
@@ -135,7 +130,7 @@ g2<-reported_month_top_5 <- bicycle2 %>%
   group_by(Neighbourhood, month_name) %>%
   summarise(count = n()) %>%
   ggplot(aes(x=factor(month_name, levels = c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")), y = count)) + 
-  geom_boxplot(fill = "#FFDB6D", color = "#C4961A") +
+  geom_boxplot(fill = c("#FFDB6D","#FFDB6D","#FFDB6D","#FFDB6D","#FFDB6D","#FFBD75","#FFBD75","#FFBD75","#FFDB6D","#FFDB6D","#FFDB6D","#FFDB6D"), color = "#C4961A") +
   xlab("Month") +
   ylab("Number of Cases") +
   theme_bw() +
@@ -151,14 +146,16 @@ ggarrange(g1, g2, ncol = 2, nrow = 1)+ggtitle("Top 5 Neighbourhoods Bicycle Thef
     plot.title = element_text(size = 12, hjust = 0.5, face ="bold"))
 ```
 
-In the previous section, we identified the top 5 neighborhoods with the highest bike theft rates. In this section, we want to reveal the months and seasons with the highest theft rates based on the top 5 neighborhoods with the highest bike theft crime ratio, so that the government can strengthen police enforcement intervention during our detected periods and issue more warnings to citizens on property safety during their travel, achieving our goal of an obvious overall dropdown on bike theft after such efficient intervention.
+In this section, we want to reveal the months and seasons with the highest theft rates based on the top 5 neighborhoods with the highest bike theft crime ratio, so that the government can strengthen police enforcement intervention during our detected periods and issue more warnings to citizens on property safety during their travel, achieving our goal of an obvious overall dropdown on bike theft after such efficient intervention.
 
-Then visualization 2 was created, which shows the distribution of monthly theft in the top 5 neighborhoods over a year. By looking at the month-by-month trend, the summer season’s bike theft cases stand out. The number of cases begins to rise in the spring and peaks in the summer with over 1000 monthly cases, then it falls steadily from the fall through the winter seasons. The insights are clear now: summer is the season with the most bike theft cases and its variance is also much larger than other seasons. This shows that summer is a warning and uncertain season where the bike thefts happen the most often. In particular, we take cases that occurred in June, July, and August, these three months for investigation.
+Then visualization 2 was created, which shows the distribution of monthly theft in the top 5 neighborhoods throughout four years on the left and the distribution of that each year on the right. By looking at the month-by-month trend, the summer season’s bike theft cases stand out. The number of cases begins to rise in the spring and peaks in the summer with over 1000 monthly cases, then it falls steadily from the fall through the winter seasons. The insights are clear now: summer is the season with the most bike theft cases, and its variance is also much larger than that of other seasons. This shows that summer is a dangerous and uncertain season where bike thefts happen most often. In particular, we take cases that occurred in June, July, and August, these three months for investigation.
+
+However, so far, we don’t have solid reasons to explain the high volume of bike theft cases during the summertime. In future work, we will need an external data source, such as the summer flow of pedestrians, to investigate the hidden reasons for this phenomenon.
 
 Our target is narrowed down to bike thefts in Top 5 Neighborhoods during summer season. Next step, considered various premise types (outside, apartment, house, commercial, and so on), it is unrealistic to draw general conclusions that differ in premise types. Therefore, we want to find a specific premise type that is most frequently being stolen for our study. Outside bikes, by common sense, are guessed easier being stolen than other types. To verify our hypothesis, visualization 3 was generated to figure out the most serious premise type that we should consider.
 
 
-### Most Frequently-stolen Premise Type Bicycle
+### Did bike thefts tend to occur more frequently at a certain premise?
 ```{r,include=FALSE}
 # bar chart of number of cases in top5 neighbourhoods over a year by premise type
 premise_type_top <- bicycle2 %>%
@@ -252,7 +249,7 @@ show(premise_type_top)
 
 ```{r,include=FALSE}
 df <- data.frame (PremiseType  = c("Outside", "Apartment", "House", "Commercial","Other"),
-                  SumBikeTheftCases = c(1543, 728, 563, 309, 78)
+                  SumBikeTheftCases = c(1543, 728,78, 563,309)
                   )
 g3 <- ggplot(df, aes(x = factor(PremiseType),y=SumBikeTheftCases))+geom_bar(stat='identity',fill = c("#45746f","#6e938f","#acc1bf","#d6e0df","#eaf0ef"))+ylab("Number of Cases") + 
   xlab("Premise Type")+ coord_polar()+theme_minimal()+theme(axis.text.x = element_text(angle = 60, size = 6, hjust = 1))
@@ -266,7 +263,7 @@ g4+ggtitle("Top 5 Neighbourhoods Bicycle Thefts During the Summer by Premise Typ
     plot.title = element_text(size = 12, hjust = 0.5, face ="bold"))
 ```
 
-We drew a barchart, a boxplot, and a bicycle-wheel shaped pie chart and found that outside bicycles account for over 40%, nearly half, of the total cases across premise types. Bicycles used for house purpose have low risks to be stolen. This is consistent with our common sense. On the one hand, people usually take care of their private or self-owned vehicles more carefully and are more lax with public properties. On the other hand, house bikes are usually parked in the garage or somewhere safe, unlike outside bikes that are mostly exposed on the street. As a result, in the following step, we shed light on the exterior features of stolen outside bicycles to provide more information to bicycle owners.
+We drew a bar chart, a box plot, and a bicycle-wheel shaped pie chart and found that outside bicycles account for over 40%, nearly half, of the total cases across premise types. Bicycles parked within a house have a low risk of being stolen. This is consistent with our common sense. On the one hand, people usually take care of their private or self-owned vehicles more carefully and are more lax with public properties. On the other hand, house bikes are usually parked in the garage or somewhere safe, unlike outside bikes that are mostly exposed on the street. However, there are a few unknown "Other" premise types in the records. We need supplementary information to specify detailed premise types for more efficient data analysis. As a result, in the following step, we shed light on the exterior features of stolen outside bicycles to provide more information to bicycle owners.
 
 ```{r,include=FALSE}
 # library(devtools)
@@ -296,7 +293,7 @@ We drew a barchart, a boxplot, and a bicycle-wheel shaped pie chart and found th
 # )
 ```
 
-### Bike Features of Bike Thefts Occurred Outside During Summer In Five Neighborhoods
+### What are some distinct bike features of most frequently occurring bike thefts?
 ```{r, include=FALSE}
 #clean data set to preserve only ones that we need for this visualization
 bicycle4 <- premise_type_top %>% filter(Premise_Type == "Outside")
@@ -350,34 +347,34 @@ topno<-last%>%filter(Bike_Make=="NO")%>%select(c("Bike_Colour","Bike_Type"))%>% 
 #it seems like really does not affected by bike brands, still black and type "RG"&"MT" play an important role
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE,fig.width=7, fig.height=3}
 #not all bike brands are shown since we want to maintain high separability and discriminability 
-g1<-bicycle4 %>% filter(Bike_Make %in% c("OT","UK","GI","TR","NO")) %>% mutate(highlight = ifelse(Bike_Make %in% c("GI", "TR", "NO"), 1, 0)) %>% ggplot(aes(x=fct_rev(fct_infreq(Bike_Make)), fill=highlight))+
-  geom_bar()+
+g1<-bicycle4 %>% filter(Bike_Make %in% c("OT","UK","GI","TR","NO")) %>% mutate(highlight = ifelse(Bike_Make %in% c("GI", "TR", "NO"), 1, 0)) %>% ggplot(aes(x=fct_rev(fct_infreq(Bike_Make))))+
+  geom_bar(fill=c("#7d5799", "#7d5799", "#7d5799", "#d8cce0", "#d8cce0"))+
   coord_flip()+
-  labs(y="Total Stolen Number")+theme_minimal()+theme(legend.position = "none")
-g2<-bicycle4 %>% filter(Bike_Colour %in% c("BLK", "GRY", "BLU", "WHI", "RED")) %>% mutate(highlight = ifelse(Bike_Colour == "BLK", 1, 0)) %>% ggplot(aes(x=fct_rev(fct_infreq(Bike_Colour)), fill=highlight))+
-  geom_bar()+
+  labs(x="Bike Make", y="Total Stolen Number")+theme_bw()+theme(legend.position = "none")
+g2<-bicycle4 %>% filter(Bike_Colour %in% c("BLK", "GRY", "BLU", "WHI", "RED")) %>% mutate(highlight = ifelse(Bike_Colour == "BLK", 1, 0)) %>% ggplot(aes(x=fct_rev(fct_infreq(Bike_Colour))))+
+  geom_bar(fill=c("#d8cce0", "#d8cce0", "#d8cce0", "#d8cce0", "#7d5799"))+
   coord_flip()+
-  labs(y="Total Stolen Number")+theme_minimal()+theme(legend.position = "none")
+  labs(x="Bike Colour",y="Total Stolen Number")+theme_bw()+theme(legend.position = "none")
 #since bike types are not a lot, then we include all of them
-g3<-bicycle4 %>% mutate(highlight = ifelse(Bike_Type %in% c("RG", "MT", "RC"), 1, 0)) %>% ggplot(aes(x=fct_rev(fct_infreq(Bike_Type)), fill=highlight))+
-  geom_bar()+
+g3<-bicycle4 %>% mutate(highlight = ifelse(Bike_Type %in% c("RG", "MT", "RC"), 1, 0)) %>% ggplot(aes(x=fct_rev(fct_infreq(Bike_Type))))+
+  geom_bar(fill=c("#d8cce0","#d8cce0","#d8cce0","#d8cce0","#d8cce0","#d8cce0","#d8cce0","#d8cce0","#7d5799","#d8cce0","#7d5799","#7d5799"))+
   coord_flip()+
-  labs(y="Total Stolen Number")+theme_minimal()+theme(legend.position = "none")
+  labs(x="Bike Type",y="Total Stolen Number")+theme_bw()+theme(legend.position = "none")
 ggarrange(g1, g2, g3, 
-          labels = c("Top 5 Bike Make", "Top 5 Bike Colour", "Bike Type"),
-          ncol = 3, nrow = 1)
+          ncol = 3, nrow = 1)+ggtitle("Bike Features of Bikes Stolen Outside in Top 5 Neighborhoods During Summer")+theme(
+    plot.title = element_text(size = 12, hjust = 0.5, face ="bold"))
 ```
 
-Finally, we aim to analyzed if bikes, that had been stolen outside during June, July, and August in Waterfront Communities-The Island, Bay Street Corridor, Church-Yonge Corridor, Niagra, and Annex, have certain features. Within bike features that can be distinguished somewhat from observing the appearance, which we assume is also what drives thieves to steal, we first hypothesized that bike thieves tend to steal more expensive ones, more bright-colored like red or white, more famous ones, or more advanced-functional ones. However, there was no obvious pattern shown in relation with original prices of the bikes maybe because thieves can’t tell a bike’s price from its appearance.
+Finally, we aim to analyze if bikes, that had been stolen outside during June, July, and August in Waterfront Communities-The Island, Bay Street Corridor, Church-Yonge Corridor, Niagra, and Annex, have certain features. Within bike features that can be distinguished somewhat from observing their appearance, which we assume is also what drives thieves to steal, we first hypothesized that bike thieves tend to steal more expensive ones, ones that are more brightly colored like red or white, more famous ones, or more advanced functional ones. However, there was no obvious pattern shown in relation to the original prices of the bikes, maybe because thieves can’t tell a bike’s price from its appearance.
 
-Subsequently, the visualization was made and shown above. It can be seen from the first subfigure that the well-known brands, Giant, Trek, and Norco are top three frequently stolen brands. Black bikes were stolen dramatically more than other colored ones. Regular, mountain, and racer bikes tend to be targeted more by the thieves.
+Subsequently, the visualization was made and shown above. It can be seen from the first subfigure that the well-known brands, Giant, Trek, and Norco are the top three frequently stolen brands. Black bikes were stolen far more frequently than other colors.Regular, mountain, and racer bikes tend to be targeted more by thieves.
 
-Since there are great amount of “Other” and “Unknown” values exist, it’s hard to conclude any meaningful things from them. Potential future classification within “Other” would help to build a more accurate and insightful analysis.
+Since there are a great amount of "Other" and "Unknown" values exist, it’s hard to conclude any meaningful things from them. Potential future classification within "Other" would help to build a more accurate and insightful analysis.
 
 ### Take-away Messages
-If you are living in Waterfront Communities-The Island, Bay Street Corridor, Church-Yonge Corridor, Niagra, or Annex, please pay more attention to your bikes and buy a firmer locker when you put them outside especially during summer time; at the same time, if you own a black regular, mountain, or racer bike from Giant, Trek or Norco, please be more aware of bike thieves and give more protection on your bike.
+Based on our findings, we would like to suggest the following: if you live in Waterfront Communities—The Island, Bay Street Corridor, Church-Yonge Corridor, Niagra, or Annex, please pay more attention to your bikes and buy a firmer locker when you leave them outside, especially during the summer; at the same time, if you own a black regular, mountain, or racer bike from Giant, Trek, or Norco, please be more aware of bike thieves and kindly give your bike more protection.
 
 
 ### References:
